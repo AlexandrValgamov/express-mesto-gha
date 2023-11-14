@@ -4,9 +4,7 @@ const { BAD_REQUEST, NOT_FOUND, SERVER_ERROR } = require('../utils/constants');
 const getUsers = async (req, res) => {
   try {
     const users = await User.find({});
-    res
-      .status(200)
-      .send(users);
+    res.send(users);
   } catch (error) {
     return res
       .status(SERVER_ERROR)
@@ -21,9 +19,7 @@ const getUserById = async (req, res) => {
     if (!user) {
       throw new Error('Not Found');
     }
-    res
-      .status(200)
-      .send(user);
+    res.send(user);
   } catch (error) {
     if (error.message === 'Not Found') {
       return res
@@ -41,12 +37,12 @@ const getUserById = async (req, res) => {
       .status(SERVER_ERROR)
       .send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
-}
+};
 
 const createUser = async (req, res) => {
   try {
-    const { name, about, avatar } = req.body
-    const newUser = await User.create({ name, about, avatar })
+    const { name, about, avatar } = req.body;
+    const newUser = await User.create({ name, about, avatar });
     res
       .status(201)
       .send(newUser);
@@ -61,20 +57,18 @@ const createUser = async (req, res) => {
       .status(SERVER_ERROR)
       .send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
-}
+};
 
 const updateUser = async (req, res) => {
   try {
     const user = await User.findByIdAndUpdate(req.user._id, req.body, { new: true });
-    res
-      .status(200)
-      .send(user);
+    res.send(user);
   } catch (error) {
     return res
       .status(SERVER_ERROR)
       .send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
-}
+};
 
 const updateUserAvatar = async (req, res) => {
   const { avatar } = req.body;
@@ -83,14 +77,12 @@ const updateUserAvatar = async (req, res) => {
       throw new Error('ValidationError');
     }
 
-    const user = await User.findByIdAndUpdate(req.user._id, { avatar: avatar }, { new: true });
+    const user = await User.findByIdAndUpdate(req.user._id, { avatar }, { new: true });
     if (!user) {
       throw new Error('Not Found');
     }
 
-    res
-      .status(200)
-      .send(user)
+    res.send(user);
   } catch (error) {
     if (error.message === 'ValidationError') {
       return res
@@ -108,7 +100,7 @@ const updateUserAvatar = async (req, res) => {
       .status(SERVER_ERROR)
       .send({ message: 'Ошибка на стороне сервера', error: error.message });
   }
-}
+};
 
 module.exports = {
   getUsers,
@@ -116,4 +108,4 @@ module.exports = {
   createUser,
   updateUser,
   updateUserAvatar,
-}
+};

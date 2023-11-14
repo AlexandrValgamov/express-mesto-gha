@@ -6,17 +6,15 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
-mongoose.connect("mongodb://127.0.0.1:27017/mestodb");
+mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
 
 app.get('/', (req, res) => {
-  res
-    .status(200)
-    .send({ message: "Hello!" });
+  res.send({ message: 'Hello!' });
 });
 
 app.use((req, res, next) => {
   req.user = {
-    _id: '654f3e64d8b893cdd13c9ab9' // вставьте сюда _id созданного пользователя
+    _id: '655366604017ef5cfe4d4578', // вставьте сюда _id созданного пользователя
   };
 
   next();
