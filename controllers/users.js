@@ -61,9 +61,29 @@ const createUser = async (req, res) => {
 
 const updateUser = async (req, res) => {
   try {
-    const user = await User.findByIdAndUpdate(req.user._id, req.body, { new: true });
+    const { name, about } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { name, about },
+      { new: true, runValidators: true },
+    );
+    if (!user) {
+      throw new Error('Not Found');
+    }
     res.send(user);
   } catch (error) {
+    if (error.name === 'ValidationError') {
+      return res
+        .status(BAD_REQUEST)
+        .send({ message: 'Переданы некорректные данные при обновлении профиля', error: error.message });
+    }
+
+    if (error.message === 'Not Found') {
+      return res
+        .status(NOT_FOUND)
+        .send({ message: 'Пользователь с указанным id не найден', error: error.message });
+    }
+
     return res
       .status(SERVER_ERROR)
       .send({ message: 'Ошибка на стороне сервера', error: error.message });
@@ -77,14 +97,18 @@ const updateUserAvatar = async (req, res) => {
       throw new Error('ValidationError');
     }
 
-    const user = await User.findByIdAndUpdate(req.user._id, { avatar }, { new: true });
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      { avatar },
+      { new: true, runValidators: true },
+    );
     if (!user) {
       throw new Error('Not Found');
     }
 
     res.send(user);
   } catch (error) {
-    if (error.message === 'ValidationError') {
+    if (error.name === 'ValidationError') {
       return res
         .status(BAD_REQUEST)
         .send({ message: 'Переданы некорректные данные при обновлении аватара', error: error.message });
