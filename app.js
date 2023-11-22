@@ -1,6 +1,8 @@
 const express = require('express');
 const mongoose = require('mongoose');
+const { celebrate, Joi, errors } = require('celebrate');
 const router = require('./routes');
+const { createUser, login } = require('./controllers/users');
 
 const { PORT = 3000 } = process.env;
 
@@ -12,16 +14,24 @@ app.get('/', (req, res) => {
   res.send({ message: 'Hello!' });
 });
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '655366604017ef5cfe4d4578', // вставьте сюда _id созданного пользователя
-  };
-
-  next();
-});
-
 app.use(express.json());
+
+app.post('/signup', createUser);
+app.post('/signin', celebrate({
+  body: Joi.object().keys({
+    email: Joi.string().required().min(2).max(30),
+    password: Joi.string().required().min(8),
+  }),
+}), login);
+
 app.use(router);
+
+app.use(errors()); // обработчик ошибок celebrate
+
+// наш централизованный обработчик
+app.use((err, req, res, next) => {
+  // ...
+});
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

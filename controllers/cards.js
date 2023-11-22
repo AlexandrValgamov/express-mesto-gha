@@ -33,8 +33,16 @@ const createCard = async (req, res) => {
 };
 
 const deleteCard = async (req, res) => {
+  const { cardId } = req.params;
+  const userId = req.user._id;
   try {
-    const card = await Card.findByIdAndDelete(req.params.cardId);
+    const checkCard = await Card.findById(cardId);
+    if (!checkCard) {
+      throw new Error('Not Found');
+    }
+    if (checkCard.owner.toString() !== userId) throw new Error('Forbidden');
+
+    const card = await Card.findByIdAndDelete(cardId);
     if (!card) {
       throw new Error('Not Found');
     }
@@ -44,6 +52,12 @@ const deleteCard = async (req, res) => {
       return res
         .status(NOT_FOUND)
         .send({ message: 'Карточка с указанным id не найдена', error: error.message });
+    }
+
+    if (error.message === 'Forbidden') {
+      return res
+        .status(NOT_FOUND)
+        .send({ message: 'Нет прав', error: error.message });
     }
 
     if (error.name === 'CastError') {
