@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { SERVER_ERROR } = require('../utils/constants');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 const { JWT_SECRET, NODE_ENV } = process.env;
 const auth = (req, res, next) => {
@@ -7,31 +7,19 @@ const auth = (req, res, next) => {
   try {
     const token = req.headers.authorization;
     if (!token) {
-      throw new Error('NotAuthenticate');
+      throw new UnauthorizedError('С токеном что-то не так');
     }
 
     const validToken = token.replace('Bearer ', '');
     payload = jwt.verify(validToken, NODE_ENV ? JWT_SECRET : 'dev_secret');
   } catch (error) {
-    if (error.message === 'NotAuthenticate') {
-      return res
-        .status(401)
-        .send({ message: 'С токеном что-то не так' });
-    }
-
     if (error.name === 'JsonWebTokenError') {
-      return res
-        .status(401)
-        .send({ message: 'С токеном что-то не так' });
+      next(new UnauthorizedError('С токеном что-то не так'));
     }
-
-    return res
-      .status(SERVER_ERROR)
-      .send({ message: 'Ошибка на стороне сервера', error: error.message });
+    next(error);
   }
 
   req.user = payload;
-  console.log(req.user);
   next();
 };
 
