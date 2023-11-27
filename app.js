@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const { celebrate, Joi, errors } = require('celebrate');
 const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
+const { regex } = require('./utils/constants');
 
 const { PORT = 3000 } = process.env;
 
@@ -16,10 +17,18 @@ app.get('/', (req, res) => {
 
 app.use(express.json());
 
-app.post('/signup', createUser);
+app.post('/signup', celebrate({
+  body: Joi.object().keys({
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().pattern(regex),
+    email: Joi.string().required().email(),
+    password: Joi.string().required().min(8),
+  }),
+}), createUser);
 app.post('/signin', celebrate({
   body: Joi.object().keys({
-    email: Joi.string().required().min(2).max(30),
+    email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
   }),
 }), login);
@@ -35,7 +44,6 @@ app.use((err, req, res, next) => {
   res
     .status(statusCode)
     .send({
-      // проверяем статус и выставляем сообщение в зависимости от него
       message: statusCode === 500
         ? 'На сервере произошла ошибка'
         : message,
