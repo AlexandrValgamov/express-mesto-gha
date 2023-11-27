@@ -11,7 +11,7 @@ const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({})
       .orFail(new NotFoundError('Пользователи не найдены'));
-    res.send({ data: users });
+    res.send(users);
   } catch (error) {
     next(error);
   }
@@ -36,10 +36,7 @@ const getUserInfo = async (req, res, next) => {
   try {
     const user = await User.findById(id)
       .orFail(new NotFoundError('Пользователь с указанным id не найден'));
-    res.send({
-      _id: user._id,
-      email: user.email,
-    });
+    res.send(user);
   } catch (error) {
     if (error.name === 'CastError') {
       next(new BadRequestError('Передан не валидный id'));
