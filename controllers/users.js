@@ -1,5 +1,6 @@
 const bcrypt = require('bcrypt');
 const User = require('../models/User');
+const { MONGO_DUPLACATE_ERROR_CODE } = require('../utils/constants');
 const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
 const UnauthorizedError = require('../errors/unauthorized-err');
@@ -97,9 +98,16 @@ const createUser = async (req, res, next) => {
       email,
       password: hash,
     });
-    res.status(201).send(newUser);
+    res
+      .status(201)
+      .send({
+        name: newUser.name,
+        about: newUser.about,
+        avatar: newUser.avatar,
+        email: newUser.email,
+      });
   } catch (error) {
-    if (error.code === 11000) {
+    if (error.code === MONGO_DUPLACATE_ERROR_CODE) {
       next(new ConflictError('Такой пользователь уже существует'));
     }
     if (error.name === 'ValidationError') {
