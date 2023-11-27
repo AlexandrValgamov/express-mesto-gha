@@ -11,7 +11,7 @@ const getUsers = async (req, res, next) => {
   try {
     const users = await User.find({})
       .orFail(new NotFoundError('Пользователи не найдены'));
-    res.send(users);
+    res.send({ data: users });
   } catch (error) {
     next(error);
   }
