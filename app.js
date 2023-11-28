@@ -5,6 +5,7 @@ const { errors } = require('celebrate');
 const { signupValidation, signinValidation } = require('./middlewares/validation');
 const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
+const exceptionHandler = require('./middlewares/exceptionHandler');
 
 const {
   PORT = 3000,
@@ -22,21 +23,8 @@ app.post('/signin', signinValidation, login);
 
 app.use(router);
 
-app.use(errors()); // обработчик ошибок celebrate
-
-// централизованный обработчик ошибок
-app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-
-  res
-    .status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'На сервере произошла ошибка'
-        : message,
-    });
-  next();
-});
+app.use(errors());
+app.use(exceptionHandler);
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);

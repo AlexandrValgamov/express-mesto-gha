@@ -96,8 +96,6 @@ const createUser = async (req, res, next) => {
   } catch (error) {
     if (error.code === MONGO_DUPLACATE_ERROR_CODE) {
       next(new ConflictError('Такой пользователь уже существует'));
-    } else if (error.name === 'ValidationError') {
-      next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
     } else {
       next(error);
     }
