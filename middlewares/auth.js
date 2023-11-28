@@ -13,10 +13,7 @@ const auth = (req, res, next) => {
     const validToken = token.replace('Bearer ', '');
     payload = jwt.verify(validToken, NODE_ENV ? JWT_SECRET : 'dev_secret');
   } catch (error) {
-    if (error.name === 'JsonWebTokenError') {
-      next(new UnauthorizedError('С токеном что-то не так'));
-    }
-    next(error);
+    next(new UnauthorizedError('С токеном что-то не так'));
   }
 
   req.user = payload;

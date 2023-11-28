@@ -9,8 +9,7 @@ const generateToken = require('../utils/jwt');
 
 const getUsers = async (req, res, next) => {
   try {
-    const users = await User.find({})
-      .orFail(new NotFoundError('Пользователи не найдены'));
+    const users = await User.find({});
     res.send(users);
   } catch (error) {
     next(error);
@@ -24,9 +23,6 @@ const getUserById = async (req, res, next) => {
       .orFail(new NotFoundError('Пользователь с указанным id не найден'));
     res.send(user);
   } catch (error) {
-    if (error.name === 'CastError') {
-      next(new BadRequestError('Передан не валидный id'));
-    }
     next(error);
   }
 };
@@ -38,9 +34,6 @@ const getUserInfo = async (req, res, next) => {
       .orFail(new NotFoundError('Пользователь с указанным id не найден'));
     res.send(user);
   } catch (error) {
-    if (error.name === 'CastError') {
-      next(new BadRequestError('Передан не валидный id'));
-    }
     next(error);
   }
 };
@@ -58,18 +51,15 @@ const updateUser = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при обновлении профиля'));
+    } else {
+      next(error);
     }
-    next(error);
   }
 };
 
 const updateUserAvatar = async (req, res, next) => {
   const { avatar } = req.body;
   try {
-    if (!avatar) {
-      throw new BadRequestError('Переданы некорректные данные при обновлении аватара');
-    }
-
     const user = await User.findByIdAndUpdate(
       req.user._id,
       { avatar },
@@ -106,11 +96,11 @@ const createUser = async (req, res, next) => {
   } catch (error) {
     if (error.code === MONGO_DUPLACATE_ERROR_CODE) {
       next(new ConflictError('Такой пользователь уже существует'));
-    }
-    if (error.name === 'ValidationError') {
+    } else if (error.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при создании пользователя'));
+    } else {
+      next(error);
     }
-    next(error);
   }
 };
 

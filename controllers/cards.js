@@ -22,8 +22,9 @@ const createCard = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'ValidationError') {
       next(new BadRequestError('Переданы некорректные данные при создании карточки'));
+    } else {
+      next(error);
     }
-    next(error);
   }
 };
 
@@ -36,16 +37,16 @@ const deleteCard = async (req, res, next) => {
       .orFail(new NotFoundError('Карточка с указанным _id не найдена'));
     if (String(checkCard.owner) !== userId) throw new ForbiddenError('Нельзя удалять карточки других пользователей');
 
-    const card = await Card
-      .findByIdAndDelete(cardId)
+    const data = await Card
+      .deleteOne(checkCard)
       .orFail(new NotFoundError('Карточка с указанным _id не найдена'));
-    res.send(card);
+    res.send({ message: 'Карточка удалена', data });
   } catch (error) {
     if (error.name === 'CastError') {
       next(new BadRequestError('Передан некорректный _id'));
+    } else {
+      next(error);
     }
-
-    next(error);
   }
 };
 
@@ -62,8 +63,9 @@ const addLike = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'CastError') {
       next(new BadRequestError('Переданы некорректные данные для постановки/снятия лайка'));
+    } else {
+      next(error);
     }
-    next(error);
   }
 };
 
@@ -80,8 +82,9 @@ const removeLike = async (req, res, next) => {
   } catch (error) {
     if (error.name === 'CastError') {
       next(new BadRequestError('Переданы некорректные данные для постановки/снятия лайка'));
+    } else {
+      next(error);
     }
-    next(error);
   }
 };
 
