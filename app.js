@@ -1,37 +1,24 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const { celebrate, Joi, errors } = require('celebrate');
+const { errors } = require('celebrate');
+const { signupValidation, signinValidation } = require('./middlewares/validation');
 const router = require('./routes');
 const { createUser, login } = require('./controllers/users');
-const { regex } = require('./utils/constants');
 
-const { PORT = 3000 } = process.env;
+const {
+  PORT = 3000,
+  MONGO_URL = 'mongodb://127.0.0.1:27017/mestodb',
+} = process.env;
 
 const app = express();
 
-mongoose.connect('mongodb://127.0.0.1:27017/mestodb');
-
-app.get('/', (req, res) => {
-  res.send({ message: 'Hello!' });
-});
+mongoose.connect(MONGO_URL);
 
 app.use(express.json());
 
-app.post('/signup', celebrate({
-  body: Joi.object().keys({
-    name: Joi.string().min(2).max(30),
-    about: Joi.string().min(2).max(30),
-    avatar: Joi.string().pattern(regex),
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), createUser);
-app.post('/signin', celebrate({
-  body: Joi.object().keys({
-    email: Joi.string().required().email(),
-    password: Joi.string().required().min(8),
-  }),
-}), login);
+app.post('/signup', signupValidation, createUser);
+app.post('/signin', signinValidation, login);
 
 app.use(router);
 
