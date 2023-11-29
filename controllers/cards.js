@@ -1,4 +1,3 @@
-const { ValidationError, CastError } = require('mongoose').Error;
 const Card = require('../models/Card');
 const BadRequestError = require('../errors/bad-request-err');
 const NotFoundError = require('../errors/not-found-err');
@@ -14,7 +13,6 @@ const getCards = async (req, res, next) => {
 };
 
 const createCard = async (req, res, next) => {
-  console.log(ValidationError);
   try {
     const { name, link } = req.body;
     const card = await Card.create({ name, link, owner: req.user._id });
